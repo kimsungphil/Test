@@ -136,7 +136,7 @@
         // 조각 클릭
         document.querySelectorAll('.piece').forEach(piece => {
             piece.addEventListener('touchend', function(e) {
-                alert("조각 클릭됨: " + this.id);   // 디버깅 alert
+              //  alert("조각 클릭됨: " + this.id);   // 디버깅 alert
                 selectPiece(this);
             }, { passive: false });
         });
