@@ -127,11 +127,10 @@
             img.style.cursor = 'pointer';
             container.appendChild(img);
         });
-        attachAllEvents();
+        attachEvents();
     }
 
-    function attachAllEvents() {
-        // 조각 이벤트
+    function attachEvents() {
         document.querySelectorAll('.piece').forEach(piece => {
             piece.addEventListener('touchend', function(e) {
                 e.stopImmediatePropagation();
@@ -139,7 +138,6 @@
             }, { passive: false });
         });
 
-        // 슬롯 이벤트
         document.querySelectorAll('.slot').forEach(slot => {
             slot.addEventListener('touchend', function(e) {
                 e.stopImmediatePropagation();
@@ -150,14 +148,12 @@
                 if (targetSlot.children.length === 0) {
                     targetSlot.appendChild(selectedPiece);
                 } else {
-                    // swap
                     const existingPiece = targetSlot.children[0];
                     const tempParent = selectedPiece.parentNode;
                     if (tempParent) tempParent.appendChild(existingPiece);
                     targetSlot.appendChild(selectedPiece);
                 }
 
-                // 선택 해제
                 document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
                 selectedPiece = null;
             }, { passive: false });
@@ -171,11 +167,12 @@
     }
 
     function checkComplete() {
-        if (document.getElementById('slot1').querySelector('#piece1') &&
-            document.getElementById('slot2').querySelector('#piece2') &&
-            document.getElementById('slot3').querySelector('#piece3') &&
-            document.getElementById('slot4').querySelector('#piece4')) {
-            
+        const slot1OK = document.getElementById('slot1').querySelector('#piece1');
+        const slot2OK = document.getElementById('slot2').querySelector('#piece2');
+        const slot3OK = document.getElementById('slot3').querySelector('#piece3');
+        const slot4OK = document.getElementById('slot4').querySelector('#piece4');
+
+        if (slot1OK && slot2OK && slot3OK && slot4OK) {
             document.getElementById('pieces').style.display = 'none';
             document.getElementById('slots').style.display = 'none';
             document.querySelector('p').style.display = 'none';
@@ -189,7 +186,7 @@
             document.body.appendChild(video);
             alert("🎉 로봇 완성! 축하합니다!");
         } else {
-            alert("조각을 터치해서 선택한 후 슬롯을 터치하세요!");
+            alert("아직 완성되지 않았어요.\n모든 슬롯에 올바른 조각이 들어가야 합니다!");
         }
     }
 
