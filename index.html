@@ -125,15 +125,19 @@
         container.appendChild(img);
     });
 
-    // 선택 함수
+    function clearAllBorders() {
+        document.querySelectorAll('.piece').forEach(p => {
+            p.style.borderColor = '#3498db';
+        });
+    }
+
     function selectPiece(piece) {
-        // 모든 테두리 초기화
-        document.querySelectorAll('.piece').forEach(p => p.style.borderColor = '#3498db');
+        clearAllBorders();
         selectedPiece = piece;
         piece.style.borderColor = '#e74c3c';
     }
 
-    // 모든 조각 클릭 이벤트 (위임)
+    // 클릭 이벤트 (모든 조각)
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('piece')) {
             selectPiece(e.target);
@@ -157,8 +161,7 @@
                 targetSlot.appendChild(selectedPiece);
             }
 
-            // 선택 완전 해제
-            document.querySelectorAll('.piece').forEach(p => p.style.borderColor = '#3498db');
+            clearAllBorders();
             selectedPiece = null;
         });
     });
