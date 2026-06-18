@@ -131,7 +131,6 @@
     }
 
     function attachAllEvents() {
-        // 조각 터치 이벤트
         document.querySelectorAll('.piece').forEach(piece => {
             piece.addEventListener('touchend', function(e) {
                 e.stopImmediatePropagation();
@@ -139,7 +138,6 @@
             }, { passive: false });
         });
 
-        // 슬롯 터치 이벤트
         document.querySelectorAll('.slot').forEach(slot => {
             slot.addEventListener('touchend', function(e) {
                 e.stopImmediatePropagation();
@@ -148,21 +146,25 @@
                 const targetSlot = this;
 
                 if (targetSlot.children.length === 0) {
+                    // 빈 슬롯
                     targetSlot.appendChild(selectedPiece);
                 } else {
                     // swap
                     const existingPiece = targetSlot.children[0];
-                    const tempParent = selectedPiece.parentNode;
-                    if (tempParent) tempParent.appendChild(existingPiece);
+                    // swap 로직
+                    const temp = document.createElement('div');
+                    temp.appendChild(existingPiece);
                     targetSlot.appendChild(selectedPiece);
+                    if (selectedPiece.parentNode) {
+                        selectedPiece.parentNode.appendChild(temp.children[0]);
+                    }
                 }
 
                 // 선택 해제
                 document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
                 selectedPiece = null;
 
-                // 이동 후 이벤트 재등록 (중요!)
-                setTimeout(attachAllEvents, 50);
+                setTimeout(attachAllEvents, 30);
             }, { passive: false });
         });
     }
