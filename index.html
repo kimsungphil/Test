@@ -9,6 +9,16 @@
     <title>유니스쿨 로봇 퍼즐</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
+
+
+     @media (min-width: 600px) {
+    .puzzle,
+    .slots-container {
+        max-width: 390px !important;
+        margin: 10px auto !important;
+        flex-wrap: wrap !important;
+    }
+    }
         body { 
             font-family: 'Malgun Gothic', sans-serif; 
             background: linear-gradient(135deg, #e0f7ff, #a0d8ff); 
@@ -48,6 +58,9 @@
             border-radius: 14px; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.2);
             flex-shrink: 0;
+            -webkit-user-drag: none;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .slots-container {
@@ -126,6 +139,8 @@ function initPieces() {
         img.className = 'piece';
         img.style.cursor = 'pointer';
         container.appendChild(img);
+        img.draggable = false;
+
     });
 }
 
@@ -178,8 +193,11 @@ function handleTouch(e) {
     }
 }
 
-document.getElementById('pieces').addEventListener('touchend', handleTouch, { passive: false });
-document.getElementById('slots').addEventListener('touchend', handleTouch, { passive: false });
+//document.getElementById('pieces').addEventListener('touchend', handleTouch, { passive: false });
+//document.getElementById('slots').addEventListener('touchend', handleTouch, { passive: false });
+// 변경
+document.getElementById('pieces').addEventListener('pointerup', handleTouch);
+document.getElementById('slots').addEventListener('pointerup', handleTouch);
 
 function checkComplete() {
     const isComplete =
