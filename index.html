@@ -122,52 +122,46 @@
         img.id = `piece${p.id}`;
         img.className = 'piece';
         img.style.cursor = 'pointer';
-        img.onclick = () => selectPiece(img);
         container.appendChild(img);
     });
 
+    // 모든 조각 선택 이벤트 (동적으로 이동된 조각도 포함)
     function selectPiece(piece) {
         if (selectedPiece) selectedPiece.style.borderColor = '#3498db';
         selectedPiece = piece;
-        piece.style.borderColor = '#e74c3c'; // 선택 표시 (빨간색)
+        piece.style.borderColor = '#e74c3c';
     }
 
-    // 슬롯 클릭 처리 (빈 슬롯 or swap)
+    // 이벤트 위임 방식 (슬롯 안 조각도 클릭 가능)
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('piece')) {
+            selectPiece(e.target);
+        }
+    });
+
+    // 슬롯 클릭 처리
     document.querySelectorAll('.slot').forEach(slot => {
         slot.style.cursor = 'pointer';
-        slot.onclick = function() {
+        slot.addEventListener('click', function() {
             if (!selectedPiece) return;
 
             const targetSlot = this;
 
             if (targetSlot.children.length === 0) {
-                // 빈 슬롯
                 targetSlot.appendChild(selectedPiece);
             } else {
                 // swap
                 const existingPiece = targetSlot.children[0];
                 const tempParent = selectedPiece.parentNode;
-
                 if (tempParent) tempParent.appendChild(existingPiece);
                 targetSlot.appendChild(selectedPiece);
             }
 
             selectedPiece.style.borderColor = '#3498db';
             selectedPiece = null;
-        };
+        });
     });
 
-    // 슬롯 안에 있는 조각도 클릭으로 선택 가능하게
-    function makeAllPiecesSelectable() {
-        document.querySelectorAll('.piece').forEach(piece => {
-            piece.onclick = () => selectPiece(piece);
-        });
-    }
-
-    // 초기화 및 이벤트 재적용
-    window.onload = makeAllPiecesSelectable;
-
-    // 체크 함수
     function checkComplete() {
         if (document.getElementById('slot1').querySelector('#piece1') &&
             document.getElementById('slot2').querySelector('#piece2') &&
