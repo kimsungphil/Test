@@ -105,97 +105,108 @@
     <button id="refreshBtn" class="refresh-btn" onclick="location.reload()" style="display: none;">🔄 다시 도전</button>
 
    <script>
-  let selectedPiece = null;
+ let selectedPiece = null;
 
-    const piecesData = [
-        {id: 1, src: "images/robot1.png"},
-        {id: 2, src: "images/robot2.png"},
-        {id: 3, src: "images/robot3.png"},
-        {id: 4, src: "images/robot4.png"}
-    ];
+const piecesData = [
+    {id: 1, src: "images/robot1.png"},
+    {id: 2, src: "images/robot2.png"},
+    {id: 3, src: "images/robot3.png"},
+    {id: 4, src: "images/robot4.png"}
+];
 
-    function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-    function initPieces() {
-        const container = document.getElementById('pieces');
-        container.innerHTML = '';
-        shuffle([...piecesData]).forEach(p => {
-            const img = document.createElement('img');
-            img.src = p.src;
-            img.id = `piece${p.id}`;
-            img.className = 'piece';
-            img.style.cursor = 'pointer';
-            container.appendChild(img);
-        });
-        attachAllEvents();
+function initPieces() {
+    const container = document.getElementById('pieces');
+    container.innerHTML = '';
+    shuffle([...piecesData]).forEach(p => {
+        const img = document.createElement('img');
+        img.src = p.src;
+        img.id = `piece${p.id}`;
+        img.className = 'piece';
+        img.style.cursor = 'pointer';
+        container.appendChild(img);
+    });
+}
+
+function selectPiece(piece) {
+    document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
+    if (selectedPiece === piece) {
+        selectedPiece = null; // 같은 조각 다시 탭 -> 선택 해제
+        return;
+    }
+    selectedPiece = piece;
+    piece.style.transform = 'scale(1.12)';
+}
+
+function placeSelectedPieceInto(targetSlot) {
+    if (!selectedPiece) return;
+    const originParent = selectedPiece.parentNode; // 이동 전에 원래 위치 저장
+
+    if (targetSlot === originParent) {
+        selectedPiece.style.transform = 'scale(1)';
+        selectedPiece = null;
+        return;
     }
 
-    function attachAllEvents() {
-        document.querySelectorAll('.piece').forEach(piece => {
-            piece.addEventListener('touchend', function(e) {
-                e.stopImmediatePropagation();
-                selectPiece(this);
-            }, { passive: false });
-        });
-
-        document.querySelectorAll('.slot').forEach(slot => {
-            slot.addEventListener('touchend', function(e) {
-                e.stopImmediatePropagation();
-                if (!selectedPiece) return;
-
-                const targetSlot = this;
-                const originParent = selectedPiece.parentNode; // 이동 전에 먼저 저장
-
-                if (targetSlot.children.length === 0) {
-                    targetSlot.appendChild(selectedPiece);
-                } else {
-                    // swap - 더 단순한 방식
-                    const existingPiece = targetSlot.children[0];
-
-                    targetSlot.appendChild(selectedPiece);     // 선택한 조각 → 타겟 슬롯
-                    originParent.appendChild(existingPiece);   // 기존 조각 → 원래 자리 (진짜 스왑)
-                }
-
-                document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
-                selectedPiece = null;
-
-                setTimeout(attachAllEvents, 30);
-            }, { passive: false });
-        });
+    if (targetSlot.children.length === 0) {
+        targetSlot.appendChild(selectedPiece);
+    } else {
+        const existingPiece = targetSlot.children[0];
+        targetSlot.appendChild(selectedPiece);
+        originParent.appendChild(existingPiece); // 진짜 스왑
     }
 
-    function selectPiece(piece) {
-        document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
-        selectedPiece = piece;
-        piece.style.transform = 'scale(1.12)';
-    }
+    document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
+    selectedPiece = null;
+}
 
-    function checkComplete() {
-        const isComplete = 
-            document.getElementById('slot1').querySelector('#piece1') &&
-            document.getElementById('slot2').querySelector('#piece2') &&
-            document.getElementById('slot3').querySelector('#piece3') &&
-            document.getElementById('slot4').querySelector('#piece4');
-
-        if (isComplete) {
-            document.getElementById('pieces').style.display = 'none';
-            document.getElementById('slots').style.display = 'none';
-            document.querySelector('p').style.display = 'none';
-            document.getElementById('checkBtn').style.display = 'none';
-            document.getElementById('refreshBtn').style.display = 'inline-block';
-
-            const video = document.createElement('video');
-            video.src = "videos/complete.mp4";
-            video.controls = true;
-            video.autoplay = true;
-            document.body.appendChild(video);
-            alert("🎉 로봇 완성! 축하합니다!");
+function handleTouch(e) {
+    const piece = e.target.closest('.piece');
+    if (piece) {
+        e.stopPropagation();
+        if (selectedPiece && selectedPiece !== piece) {
+            placeSelectedPieceInto(piece.parentNode); // 이미 선택된 조각을 이 자리에 드롭
         } else {
-            alert("아직 완성되지 않았어요.");
+            selectPiece(piece);
         }
+        return;
     }
+    const slot = e.target.closest('.slot');
+    if (slot) {
+        placeSelectedPieceInto(slot);
+    }
+}
 
-    window.onload = initPieces;
+document.getElementById('pieces').addEventListener('touchend', handleTouch, { passive: false });
+document.getElementById('slots').addEventListener('touchend', handleTouch, { passive: false });
+
+function checkComplete() {
+    const isComplete =
+        document.getElementById('slot1').querySelector('#piece1') &&
+        document.getElementById('slot2').querySelector('#piece2') &&
+        document.getElementById('slot3').querySelector('#piece3') &&
+        document.getElementById('slot4').querySelector('#piece4');
+
+    if (isComplete) {
+        document.getElementById('pieces').style.display = 'none';
+        document.getElementById('slots').style.display = 'none';
+        document.querySelector('p').style.display = 'none';
+        document.getElementById('checkBtn').style.display = 'none';
+        document.getElementById('refreshBtn').style.display = 'inline-block';
+
+        const video = document.createElement('video');
+        video.src = "videos/complete.mp4";
+        video.controls = true;
+        video.autoplay = true;
+        document.body.appendChild(video);
+        alert("🎉 로봇 완성! 축하합니다!");
+    } else {
+        alert("아직 완성되지 않았어요.");
+    }
+}
+
+window.onload = initPieces;
 </script>
 </body>
 </html>
