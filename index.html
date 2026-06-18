@@ -105,7 +105,7 @@
     <button id="refreshBtn" class="refresh-btn" onclick="location.reload()" style="display: none;">🔄 다시 도전</button>
 
    <script>
-   let selectedPiece = null;
+  let selectedPiece = null;
 
     const piecesData = [
         {id: 1, src: "images/robot1.png"},
@@ -146,21 +146,14 @@
                 const targetSlot = this;
 
                 if (targetSlot.children.length === 0) {
-                    // 빈 슬롯
                     targetSlot.appendChild(selectedPiece);
                 } else {
-                    // swap
+                    // swap - 더 단순한 방식
                     const existingPiece = targetSlot.children[0];
-                    // swap 로직
-                    const temp = document.createElement('div');
-                    temp.appendChild(existingPiece);
                     targetSlot.appendChild(selectedPiece);
-                    if (selectedPiece.parentNode) {
-                        selectedPiece.parentNode.appendChild(temp.children[0]);
-                    }
+                    selectedPiece.parentNode.appendChild(existingPiece);  // swap
                 }
 
-                // 선택 해제
                 document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
                 selectedPiece = null;
 
