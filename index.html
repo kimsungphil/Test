@@ -101,58 +101,67 @@
     <button id="checkBtn" class="check-btn" onclick="checkComplete()">✅ 완성 확인</button>
     <button id="refreshBtn" class="refresh-btn" onclick="location.reload()" style="display: none;">🔄 다시 도전</button>
 
-    <script>
-        const piecesData = [
-            {id: 1, src: "images/robot1.png"},
-            {id: 2, src: "images/robot2.png"},
-            {id: 3, src: "images/robot3.png"},
-            {id: 4, src: "images/robot4.png"}
-        ];
+   <script>
+ let selectedPiece = null;
 
-        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+    const piecesData = [
+        {id: 1, src: "images/robot1.png"},
+        {id: 2, src: "images/robot2.png"},
+        {id: 3, src: "images/robot3.png"},
+        {id: 4, src: "images/robot4.png"}
+    ];
 
-        const container = document.getElementById('pieces');
-        shuffle([...piecesData]).forEach(p => {
-            const img = document.createElement('img');
-            img.src = p.src;
-            img.draggable = true;
-            img.ondragstart = (e) => e.dataTransfer.setData("text", e.target.id);
-            img.id = `piece${p.id}`;
-            img.className = 'piece';
-            container.appendChild(img);
-        });
+    function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-        function allowDrop(ev) { ev.preventDefault(); }
+    const container = document.getElementById('pieces');
+    shuffle([...piecesData]).forEach(p => {
+        const img = document.createElement('img');
+        img.src = p.src;
+        img.id = `piece${p.id}`;
+        img.className = 'piece';
+        img.style.cursor = 'pointer';
+        img.onclick = () => selectPiece(img);
+        container.appendChild(img);
+    });
 
-        function drop(ev) {
-            ev.preventDefault();
-            const data = ev.dataTransfer.getData("text");
-            const piece = document.getElementById(data);
-            const slot = ev.currentTarget;
-            if (slot.children.length === 0) slot.appendChild(piece);
-        }
+    function selectPiece(piece) {
+        if (selectedPiece) selectedPiece.style.borderColor = '#3498db';
+        selectedPiece = piece;
+        piece.style.borderColor = '#e74c3c'; // 선택 표시
+    }
 
-        function checkComplete() {
-            if (document.getElementById('slot1').querySelector('#piece1') &&
-                document.getElementById('slot2').querySelector('#piece2') &&
-                document.getElementById('slot3').querySelector('#piece3') &&
-                document.getElementById('slot4').querySelector('#piece4')) {
-                
-                document.getElementById('pieces').style.display = 'none';
-                document.getElementById('slots').style.display = 'none';
-                document.querySelector('p').style.display = 'none';
-                document.getElementById('checkBtn').style.display = 'none';
-                document.getElementById('refreshBtn').style.display = 'inline-block';
-
-                const video = document.createElement('video');
-                video.src = "videos/complete.mp4";
-                video.controls = true;
-                video.autoplay = true;
-                document.body.appendChild(video);
-            } else {
-                alert("아직 완성되지 않았어요. 다시 배치해보세요!");
+    // 슬롯 클릭 시 조각 이동
+    document.querySelectorAll('.slot').forEach(slot => {
+        slot.onclick = function() {
+            if (selectedPiece && this.children.length === 0) {
+                this.appendChild(selectedPiece);
+                selectedPiece.style.borderColor = '#3498db';
+                selectedPiece = null;
             }
+        };
+    });
+
+    function checkComplete() {
+        if (document.getElementById('slot1').querySelector('#piece1') &&
+            document.getElementById('slot2').querySelector('#piece2') &&
+            document.getElementById('slot3').querySelector('#piece3') &&
+            document.getElementById('slot4').querySelector('#piece4')) {
+            
+            document.getElementById('pieces').style.display = 'none';
+            document.getElementById('slots').style.display = 'none';
+            document.querySelector('p').style.display = 'none';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('refreshBtn').style.display = 'inline-block';
+
+            const video = document.createElement('video');
+            video.src = "videos/complete.mp4";
+            video.controls = true;
+            video.autoplay = true;
+            document.body.appendChild(video);
+        } else {
+            alert("아직 완성되지 않았어요. 조각을 선택한 후 슬롯을 클릭하세요!");
         }
-    </script>
+    }
+</script>
 </body>
 </html>
