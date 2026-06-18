@@ -105,8 +105,6 @@
     <button id="refreshBtn" class="refresh-btn" onclick="location.reload()" style="display: none;">🔄 다시 도전</button>
 
    <script>
-//---------------------------------------------------
-
     let selectedPiece = null;
 
     const piecesData = [
@@ -128,29 +126,27 @@
         container.appendChild(img);
     });
 
-    function clearAllBorders() {
-        document.querySelectorAll('.piece').forEach(p => {
-            p.style.borderColor = '#3498db';
-        });
-    }
-
+    // 선택 함수 (테두리 대신 scale 효과)
     function selectPiece(piece) {
-        clearAllBorders();
+        // 이전 선택 해제
+        document.querySelectorAll('.piece').forEach(p => {
+            p.style.transform = 'scale(1)';
+        });
         selectedPiece = piece;
-        piece.style.borderColor = '#e74c3c';
+        piece.style.transform = 'scale(1.08)';
     }
 
-    // 모바일에서 더 잘 먹히는 touchend 사용
+    // 클릭 이벤트
     document.addEventListener('touchend', function(e) {
         if (e.target.classList.contains('piece')) {
             selectPiece(e.target);
         }
     });
 
-    // 슬롯 클릭 (touchend)
+    // 슬롯 터치
     document.querySelectorAll('.slot').forEach(slot => {
         slot.style.cursor = 'pointer';
-        slot.addEventListener('touchend', function(e) {
+        slot.addEventListener('touchend', function() {
             if (!selectedPiece) return;
 
             const targetSlot = this;
@@ -164,7 +160,10 @@
                 targetSlot.appendChild(selectedPiece);
             }
 
-            clearAllBorders();
+            // 선택 해제
+            document.querySelectorAll('.piece').forEach(p => {
+                p.style.transform = 'scale(1)';
+            });
             selectedPiece = null;
         });
     });
