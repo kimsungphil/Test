@@ -116,57 +116,72 @@
 
     function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-    const container = document.getElementById('pieces');
-    shuffle([...piecesData]).forEach(p => {
-        const img = document.createElement('img');
-        img.src = p.src;
-        img.id = `piece${p.id}`;
-        img.className = 'piece';
-        img.style.cursor = 'pointer';
-        container.appendChild(img);
-    });
-
-    // 선택 함수 (테두리 대신 scale 효과)
-    function selectPiece(piece) {
-        // 이전 선택 해제
-        document.querySelectorAll('.piece').forEach(p => {
-            p.style.transform = 'scale(1)';
+    function initPieces() {
+        const container = document.getElementById('pieces');
+        container.innerHTML = '';
+        shuffle([...piecesData]).forEach(p => {
+            const img = document.createElement('img');
+            img.src = p.src;
+            img.id = `piece${p.id}`;
+            img.className = 'piece';
+            img.style.cursor = 'pointer';
+            container.appendChild(img);
         });
-        selectedPiece = piece;
-        piece.style.transform = 'scale(1.08)';
+        attachPieceEvents();
     }
 
-    // 클릭 이벤트
-    document.addEventListener('touchend', function(e) {
-        if (e.target.classList.contains('piece')) {
-            selectPiece(e.target);
-        }
-    });
-
-    // 슬롯 터치
-    document.querySelectorAll('.slot').forEach(slot => {
-        slot.style.cursor = 'pointer';
-        slot.addEventListener('touchend', function() {
-            if (!selectedPiece) return;
-
-            const targetSlot = this;
-
-            if (targetSlot.children.length === 0) {
-                targetSlot.appendChild(selectedPiece);
-            } else {
-                const existingPiece = targetSlot.children[0];
-                const tempParent = selectedPiece.parentNode;
-                if (tempParent) tempParent.appendChild(existingPiece);
-                targetSlot.appendChild(selectedPiece);
-            }
-
-            // 선택 해제
-            document.querySelectorAll('.piece').forEach(p => {
-                p.style.transform = 'scale(1)';
+    function attachPieceEvents() {
+        document.querySelectorAll('.piece').forEach(piece => {
+            piece.onclick = null;
+            piece.ontouchend = null;
+            piece.addEventListener('touchend', function(e) {
+                e.stopImmediatePropagation();
+                selectPiece(this);
             });
-            selectedPiece = null;
         });
-    });
+    }
+
+    function selectPiece(piece) {
+        // 모든 선택 해제
+        document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
+        selectedPiece = piece;
+        piece.style.transform = 'scale(1.1)';
+    }
+
+    // 슬롯 이벤트
+    function attachSlotEvents() {
+        document.querySelectorAll('.slot').forEach(slot => {
+            slot.ontouchend = null;
+            slot.addEventListener('touchend', function(e) {
+                e.stopImmediatePropagation();
+                if (!selectedPiece) return;
+
+                const targetSlot = this;
+
+                if (targetSlot.children.length === 0) {
+                    targetSlot.appendChild(selectedPiece);
+                } else {
+                    const existingPiece = targetSlot.children[0];
+                    const tempParent = selectedPiece.parentNode;
+                    if (tempParent) tempParent.appendChild(existingPiece);
+                    targetSlot.appendChild(selectedPiece);
+                }
+
+                // 선택 해제
+                document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
+                selectedPiece = null;
+
+                // 이벤트 재등록
+                setTimeout(attachPieceEvents, 10);
+            });
+        });
+    }
+
+    // 초기화
+    window.onload = function() {
+        initPieces();
+        attachSlotEvents();
+    };
 
     function checkComplete() {
         if (document.getElementById('slot1').querySelector('#piece1') &&
