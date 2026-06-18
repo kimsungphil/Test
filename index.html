@@ -116,7 +116,7 @@
 
     function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-    function init() {
+    function initPieces() {
         const container = document.getElementById('pieces');
         container.innerHTML = '';
         shuffle([...piecesData]).forEach(p => {
@@ -127,24 +127,22 @@
             img.style.cursor = 'pointer';
             container.appendChild(img);
         });
-
-        // 이벤트 등록
-        attachEvents();
+        attachAllEvents();
     }
 
-    function attachEvents() {
-        // 조각 클릭
+    function attachAllEvents() {
+        // 조각 이벤트
         document.querySelectorAll('.piece').forEach(piece => {
             piece.addEventListener('touchend', function(e) {
-                alert("조각 클릭됨: " + this.id);   // 디버깅 alert
+                e.stopImmediatePropagation();
                 selectPiece(this);
             }, { passive: false });
         });
 
-        // 슬롯 클릭
+        // 슬롯 이벤트
         document.querySelectorAll('.slot').forEach(slot => {
             slot.addEventListener('touchend', function(e) {
-                alert("슬롯 클릭됨!");   // 디버깅 alert
+                e.stopImmediatePropagation();
                 if (!selectedPiece) return;
 
                 const targetSlot = this;
@@ -152,12 +150,15 @@
                 if (targetSlot.children.length === 0) {
                     targetSlot.appendChild(selectedPiece);
                 } else {
+                    // swap
                     const existingPiece = targetSlot.children[0];
                     const tempParent = selectedPiece.parentNode;
                     if (tempParent) tempParent.appendChild(existingPiece);
                     targetSlot.appendChild(selectedPiece);
                 }
 
+                // 선택 해제
+                document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
                 selectedPiece = null;
             }, { passive: false });
         });
@@ -166,23 +167,33 @@
     function selectPiece(piece) {
         document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
         selectedPiece = piece;
-        piece.style.transform = 'scale(1.1)';
+        piece.style.transform = 'scale(1.12)';
     }
 
     function checkComplete() {
- alert("완성 확인 버튼 눌림"); // 디버깅
         if (document.getElementById('slot1').querySelector('#piece1') &&
             document.getElementById('slot2').querySelector('#piece2') &&
             document.getElementById('slot3').querySelector('#piece3') &&
             document.getElementById('slot4').querySelector('#piece4')) {
-            alert("🎉 완성!");
-            // 완성 로직...
+            
+            document.getElementById('pieces').style.display = 'none';
+            document.getElementById('slots').style.display = 'none';
+            document.querySelector('p').style.display = 'none';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('refreshBtn').style.display = 'inline-block';
+
+            const video = document.createElement('video');
+            video.src = "videos/complete.mp4";
+            video.controls = true;
+            video.autoplay = true;
+            document.body.appendChild(video);
+            alert("🎉 로봇 완성! 축하합니다!");
         } else {
-            alert("아직 완성 안됨");
+            alert("조각을 터치해서 선택한 후 슬롯을 터치하세요!");
         }
     }
 
-    window.onload = init;
+    window.onload = initPieces;
 </script>
 </body>
 </html>
