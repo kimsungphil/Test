@@ -107,7 +107,7 @@
    <script>
 //---------------------------------------------------
 
- let selectedPiece = null;
+    let selectedPiece = null;
 
     const piecesData = [
         {id: 1, src: "images/robot1.png"},
@@ -140,17 +140,17 @@
         piece.style.borderColor = '#e74c3c';
     }
 
-    // 클릭 이벤트 (모든 조각)
-    document.addEventListener('click', function(e) {
+    // 모바일에서 더 잘 먹히는 touchend 사용
+    document.addEventListener('touchend', function(e) {
         if (e.target.classList.contains('piece')) {
             selectPiece(e.target);
         }
     });
 
-    // 슬롯 클릭
+    // 슬롯 클릭 (touchend)
     document.querySelectorAll('.slot').forEach(slot => {
         slot.style.cursor = 'pointer';
-        slot.addEventListener('click', function() {
+        slot.addEventListener('touchend', function(e) {
             if (!selectedPiece) return;
 
             const targetSlot = this;
@@ -188,7 +188,7 @@
             document.body.appendChild(video);
             alert("🎉 로봇 완성! 축하합니다!");
         } else {
-            alert("조각을 클릭해서 선택한 후 슬롯을 클릭하세요!");
+            alert("조각을 터치해서 선택한 후 슬롯을 터치하세요!");
         }
     }
 </script>
