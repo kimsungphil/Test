@@ -144,14 +144,16 @@
                 if (!selectedPiece) return;
 
                 const targetSlot = this;
+                const originParent = selectedPiece.parentNode; // 이동 전에 먼저 저장
 
                 if (targetSlot.children.length === 0) {
                     targetSlot.appendChild(selectedPiece);
                 } else {
                     // swap - 더 단순한 방식
                     const existingPiece = targetSlot.children[0];
-                    targetSlot.appendChild(selectedPiece);
-                    selectedPiece.parentNode.appendChild(existingPiece);  // swap
+
+                    targetSlot.appendChild(selectedPiece);     // 선택한 조각 → 타겟 슬롯
+                    originParent.appendChild(existingPiece);   // 기존 조각 → 원래 자리 (진짜 스왑)
                 }
 
                 document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
