@@ -129,34 +129,40 @@
     function selectPiece(piece) {
         if (selectedPiece) selectedPiece.style.borderColor = '#3498db';
         selectedPiece = piece;
-        piece.style.borderColor = '#e74c3c';
+        piece.style.borderColor = '#e74c3c'; // 선택 표시
     }
 
+    // 슬롯 클릭 처리 (빈 슬롯 or swap)
     document.querySelectorAll('.slot').forEach(slot => {
         slot.style.cursor = 'pointer';
         slot.onclick = function() {
-            if (selectedPiece && this.children.length === 0) {
-                this.appendChild(selectedPiece);
-                selectedPiece.style.borderColor = '#3498db';
-                selectedPiece = null;
+            if (!selectedPiece) return;
+
+            const targetSlot = this;
+
+            if (targetSlot.children.length === 0) {
+                // 빈 슬롯 → 그냥 이동
+                targetSlot.appendChild(selectedPiece);
+            } else {
+                // 이미 조각이 있는 슬롯 → 서로 swap
+                const existingPiece = targetSlot.children[0];
+                const tempParent = selectedPiece.parentNode;
+
+                if (tempParent) tempParent.appendChild(existingPiece);
+                targetSlot.appendChild(selectedPiece);
             }
+
+            selectedPiece.style.borderColor = '#3498db';
+            selectedPiece = null;
         };
     });
 
-    // 모바일/PC 모두 잘 되는 완성 체크 함수
     function checkComplete() {
-        const slot1 = document.getElementById('slot1');
-        const slot2 = document.getElementById('slot2');
-        const slot3 = document.getElementById('slot3');
-        const slot4 = document.getElementById('slot4');
-
-        const isComplete = 
-            slot1.children.length > 0 && slot1.querySelector('#piece1') &&
-            slot2.children.length > 0 && slot2.querySelector('#piece2') &&
-            slot3.children.length > 0 && slot3.querySelector('#piece3') &&
-            slot4.children.length > 0 && slot4.querySelector('#piece4');
-
-        if (isComplete) {
+        if (document.getElementById('slot1').querySelector('#piece1') &&
+            document.getElementById('slot2').querySelector('#piece2') &&
+            document.getElementById('slot3').querySelector('#piece3') &&
+            document.getElementById('slot4').querySelector('#piece4')) {
+            
             document.getElementById('pieces').style.display = 'none';
             document.getElementById('slots').style.display = 'none';
             document.querySelector('p').style.display = 'none';
@@ -170,7 +176,7 @@
             document.body.appendChild(video);
             alert("🎉 로봇 완성! 축하합니다!");
         } else {
-            alert("아직 완성되지 않았어요.\n조각을 선택한 후 빈 슬롯을 클릭하세요!");
+            alert("아직 완성되지 않았어요.\n조각을 선택한 후 슬롯을 클릭하세요!");
         }
     }
 </script>
