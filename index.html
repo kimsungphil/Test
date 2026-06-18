@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유니스쿨 로봇 퍼즐</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            background: #e0f0ff; 
+            margin: 0; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        h1 { color: #2c3e50; }
+        .puzzle { 
+            display: flex; 
+            justify-content: center; 
+            gap: 12px; 
+            flex-wrap: nowrap; 
+            overflow-x: auto; 
+            padding: 15px 0; 
+            max-width: 100%; 
+            margin: 20px auto; 
+        }
+        .piece { 
+            width: 230px; 
+            height: 173px; 
+            object-fit: cover; 
+            border: 4px solid #3498db; 
+            border-radius: 12px; 
+            cursor: grab; 
+            flex-shrink: 0;
+        }
+        .piece.dragging { opacity: 0.6; border-color: #e74c3c; }
+        .slot { 
+            width: 230px; 
+            height: 173px; 
+            border: 4px dashed #95a5a6; 
+            border-radius: 12px; 
+            background: white;
+        }
+        button { 
+            padding: 14px 32px; 
+            font-size: 18px; 
+            border: none; 
+            border-radius: 50px; 
+            margin: 10px;
+            cursor: pointer;
+        }
+        .refresh-btn { 
+            background: #3498db; 
+            color: white; 
+        }
+    </style>
+</head>
+<body>
+    <h1>🛠️ 로봇 퍼즐 조립하기</h1>
+    <p>조각을 드래그해서 정확한 위치에 놓으세요!</p>
+
+    <div class="puzzle" id="pieces"></div>
+
+    <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; max-width: 620px; margin: 20px auto;" id="slots">
+        <div class="slot" id="slot1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="slot" id="slot2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="slot" id="slot3" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+        <div class="slot" id="slot4" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+    </div>
+
+    <button id="checkBtn" onclick="checkComplete()">✅ 완성 확인</button>
+    <button id="refreshBtn" class="refresh-btn" onclick="location.reload()" style="display: none;">🔄 다시 섞기</button>
+
+    <script>
+        const piecesData = [
+            {id: 1, src: "images/robot1.png"},
+            {id: 2, src: "images/robot2.png"},
+            {id: 3, src: "images/robot3.png"},
+            {id: 4, src: "images/robot4.png"}
+        ];
+
+        function shuffle(array) {
+            return array.sort(() => Math.random() - 0.5);
+        }
+
+        const container = document.getElementById('pieces');
+        const shuffled = shuffle([...piecesData]);
+
+        shuffled.forEach(p => {
+            const img = document.createElement('img');
+            img.src = p.src;
+            img.draggable = true;
+            img.ondragstart = drag;
+            img.id = `piece${p.id}`;
+            img.className = 'piece';
+            container.appendChild(img);
+        });
+
+        function allowDrop(ev) { ev.preventDefault(); }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("text", ev.target.id);
+            ev.target.classList.add('dragging');
+        }
+
+        function drop(ev) {
+            ev.preventDefault();
+            const data = ev.dataTransfer.getData("text");
+            const piece = document.getElementById(data);
+            if (piece) {
+                const target = ev.target;
+                if (target.classList.contains('slot') && target.children.length === 0) {
+                    target.appendChild(piece);
+                }
+                piece.classList.remove('dragging');
+            }
+        }
+
+        function checkComplete() {
+            const slot1 = document.getElementById('slot1');
+            const slot2 = document.getElementById('slot2');
+            const slot3 = document.getElementById('slot3');
+            const slot4 = document.getElementById('slot4');
+
+            if (slot1.querySelector('#piece1') && 
+                slot2.querySelector('#piece2') && 
+                slot3.querySelector('#piece3') && 
+                slot4.querySelector('#piece4')) {
+                
+                // 퍼즐 숨기기
+                document.getElementById('pieces').style.display = "none";
+                document.getElementById('slots').style.display = "none";
+                document.querySelector('p').style.display = "none";
+                document.getElementById('checkBtn').style.display = "none";
+
+                // 새로고침 버튼 보이기
+                document.getElementById('refreshBtn').style.display = "inline-block";
+
+                // 완성 영상
+                const winVideo = document.createElement('video');
+                winVideo.src = "videos/complete.mp4";
+                winVideo.controls = true;
+                winVideo.autoplay = true;
+                winVideo.style.width = "100%";
+                winVideo.style.maxWidth = "620px";
+                winVideo.style.margin = "20px auto";
+                winVideo.style.borderRadius = "16px";
+                
+                document.body.appendChild(winVideo);
+                winVideo.play();
+
+                alert("🎉 완벽! 로봇이 깨어났습니다!");
+            } else {
+                alert("조각 위치가 틀렸어요. 다시 섞어서 도전합니다!");
+                setTimeout(() => location.reload(), 800);
+            }
+        }
+    </script>
+</body>
+</html>
