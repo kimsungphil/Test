@@ -90,7 +90,7 @@
 </head>
 <body>
     <h1>🛠️ 유니스쿨 로봇 퍼즐</h1>
-    <p>조각을 클릭으로 로봇을 완성해보세요!</p>
+    <p>조각을 드래그해서 로봇을 완성해보세요!</p>
 
     <div class="puzzle" id="pieces"></div>
 
@@ -116,7 +116,7 @@
 
     function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
 
-    function init() {
+    function initPieces() {
         const container = document.getElementById('pieces');
         container.innerHTML = '';
         shuffle([...piecesData]).forEach(p => {
@@ -127,24 +127,33 @@
             img.style.cursor = 'pointer';
             container.appendChild(img);
         });
-
-        // 이벤트 등록
-        attachEvents();
+        attachPieceEvents();
     }
 
-    function attachEvents() {
-        // 조각 클릭
+    function attachPieceEvents() {
         document.querySelectorAll('.piece').forEach(piece => {
+            piece.onclick = null;
+            piece.ontouchend = null;
             piece.addEventListener('touchend', function(e) {
-              //  alert("조각 클릭됨: " + this.id);   // 디버깅 alert
+                e.stopImmediatePropagation();
                 selectPiece(this);
-            }, { passive: false });
+            });
         });
+    }
 
-        // 슬롯 클릭
+    function selectPiece(piece) {
+        // 모든 선택 해제
+        document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
+        selectedPiece = piece;
+        piece.style.transform = 'scale(1.1)';
+    }
+
+    // 슬롯 이벤트
+    function attachSlotEvents() {
         document.querySelectorAll('.slot').forEach(slot => {
+            slot.ontouchend = null;
             slot.addEventListener('touchend', function(e) {
-                //alert("슬롯 클릭됨!");   // 디버깅 alert
+                e.stopImmediatePropagation();
                 if (!selectedPiece) return;
 
                 const targetSlot = this;
@@ -158,31 +167,44 @@
                     targetSlot.appendChild(selectedPiece);
                 }
 
+                // 선택 해제
+                document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
                 selectedPiece = null;
-            }, { passive: false });
+
+                // 이벤트 재등록
+                setTimeout(attachPieceEvents, 10);
+            });
         });
     }
 
-    function selectPiece(piece) {
-        document.querySelectorAll('.piece').forEach(p => p.style.transform = 'scale(1)');
-        selectedPiece = piece;
-        piece.style.transform = 'scale(1.1)';
-    }
+    // 초기화
+    window.onload = function() {
+        initPieces();
+        attachSlotEvents();
+    };
 
     function checkComplete() {
-       // alert("완성 확인 버튼 눌림"); // 디버깅
         if (document.getElementById('slot1').querySelector('#piece1') &&
             document.getElementById('slot2').querySelector('#piece2') &&
             document.getElementById('slot3').querySelector('#piece3') &&
             document.getElementById('slot4').querySelector('#piece4')) {
-            alert("🎉 완성!");
-            // 완성 로직...
+            
+            document.getElementById('pieces').style.display = 'none';
+            document.getElementById('slots').style.display = 'none';
+            document.querySelector('p').style.display = 'none';
+            document.getElementById('checkBtn').style.display = 'none';
+            document.getElementById('refreshBtn').style.display = 'inline-block';
+
+            const video = document.createElement('video');
+            video.src = "videos/complete.mp4";
+            video.controls = true;
+            video.autoplay = true;
+            document.body.appendChild(video);
+            alert("🎉 로봇 완성! 축하합니다!");
         } else {
-            alert("아직 완성 안됨");
+            alert("조각을 터치해서 선택한 후 슬롯을 터치하세요!");
         }
     }
-
-    window.onload = init;
 </script>
 </body>
 </html>
